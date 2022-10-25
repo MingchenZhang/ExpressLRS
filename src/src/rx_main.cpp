@@ -1235,14 +1235,15 @@ void HandleUARTin()
     {
         return;
     }
-    if (CRSF_RX_SERIAL.available())
+    while (CRSF_RX_SERIAL.available())
     {
         #if defined(USE_AIRPORT_AT_BAUD)
+            uint8_t v = CRSF_RX_SERIAL.read();
             if (apInputBuffer.size() < AP_MAX_BUF_LEN && connectionState == connected)
             {
-                apInputBuffer.push(CRSF_RX_SERIAL.read());
+                apInputBuffer.push(v);
             }
-            return;
+            continue;
         #endif
 
         telemetry.RXhandleUARTin(CRSF_RX_SERIAL.read());
@@ -1272,7 +1273,7 @@ void HandleUARTin()
 static void HandleUARTout()
 {
     #if defined(USE_AIRPORT_AT_BAUD)
-        if (apOutputBuffer.size())
+        while (apOutputBuffer.size())
         {
             Serial.write(apOutputBuffer.pop());
         }
